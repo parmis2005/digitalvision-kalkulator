@@ -336,7 +336,7 @@
         max-width: 680px;
         margin: 0;
         color: #fff;
-        font-size: clamp(2.15rem, 4.7vw, 4.15rem);
+        font-size: clamp(1.75rem, 3.8vw, 3.25rem);
         font-weight: 520;
         letter-spacing: 0;
         line-height: 1;
@@ -635,7 +635,7 @@
         }
 
         h1 {
-          font-size: clamp(1.75rem, 8vw, 2.55rem);
+          font-size: clamp(1.45rem, 6.8vw, 2.05rem);
         }
 
         .card {
