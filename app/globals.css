@@ -211,13 +211,17 @@
       }
 
       h1 {
-        max-width: 560px;
+        max-width: 680px;
         margin: 0;
         color: #fff;
         font-size: clamp(2.15rem, 4.7vw, 4.15rem);
         font-weight: 520;
         letter-spacing: 0;
         line-height: 1;
+      }
+
+      .title-main {
+        white-space: nowrap;
       }
 
       .title-muted {
@@ -509,7 +513,7 @@
         }
 
         h1 {
-          font-size: clamp(1.95rem, 10vw, 2.85rem);
+          font-size: clamp(1.75rem, 8vw, 2.55rem);
         }
 
         .card {

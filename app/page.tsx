@@ -199,7 +199,8 @@ export default function Home() {
           <div className="hero-copy">
             <p className="eyebrow">Webdesign · Support · Vertrag</p>
             <h1>
-              Website kalkulieren <span className="title-muted">klar und schnell.</span>
+              <span className="title-main">Website kalkulieren</span>{" "}
+              <span className="title-muted">klar und schnell.</span>
             </h1>
             <p className="hero-text">
               Berechne Monatsrate, Support-Zeitraum und Gesamteinnahmen passend zu den
