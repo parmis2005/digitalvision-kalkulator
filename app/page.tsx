@@ -131,10 +131,9 @@ export default function Home() {
   return (
     <>
       <div className="ambient-particles" aria-hidden="true">
-        <span className="ambient-particle" />
-        <span className="ambient-particle" />
-        <span className="ambient-particle" />
-        <span className="ambient-particle" />
+        {Array.from({ length: 18 }, (_, index) => (
+          <span className="ambient-particle" key={index} />
+        ))}
       </div>
       <main className="page">
         <header className="site-header">
