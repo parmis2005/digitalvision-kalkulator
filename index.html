@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="Digital Vision Webseiten-Kalkulator für Website-Raten, Support und Vertragslaufzeiten.">
+    <title>Digital Vision Webseiten-Kalkulator</title>
+    <style>
+      :root {
+        --ink: #f8fbff;
+        --paper: #020814;
+        --muted: #b4c4d9;
+        --line: rgba(169, 214, 255, .16);
+        --cyan: #9be4ff;
+        --violet: #9155ff;
+        --gold: #ffc774;
+        --surface: rgba(255, 255, 255, .08);
+        --surface-strong: rgba(255, 255, 255, .14);
+        --nav-text-gradient: linear-gradient(90deg, #8fe3ff, #aebeff 46%, #c67cff);
+        --light-cta-bg: radial-gradient(circle at 62% 18%, rgba(174, 240, 255, .9), transparent 34%), linear-gradient(135deg, #fbfdff, #d8f6ff 48%, #ffd58a);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        min-height: 100%;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        overflow-x: hidden;
+        background:
+          radial-gradient(circle at 18% 14%, rgba(93, 196, 255, .16), transparent 22%),
+          radial-gradient(circle at 78% 22%, rgba(255, 113, 74, .11), transparent 25%),
+          linear-gradient(135deg, #020611, #06172f 42%, #101130 68%, #150d2f);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      body::before,
+      body::after {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        content: "";
+      }
+
+      body::before {
+        z-index: 0;
+        background:
+          radial-gradient(circle at 18% 18%, rgba(37, 99, 235, .28), transparent 34%),
+          radial-gradient(circle at 72% 16%, rgba(255, 146, 105, .16), transparent 32%),
+          radial-gradient(circle at 82% 68%, rgba(133, 79, 255, .16), transparent 28%);
+      }
+
+      body::after {
+        z-index: 0;
+        background:
+          linear-gradient(180deg, rgba(0, 0, 0, .06), rgba(2, 6, 18, .76) 72%, #020611),
+          linear-gradient(115deg, rgba(6, 14, 33, .9), rgba(33, 47, 93, .35) 48%, rgba(60, 18, 46, .26) 70%, rgba(4, 3, 12, .92));
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      .page {
+        position: relative;
+        z-index: 1;
+        min-height: 100vh;
+      }
+
+      .ambient-particles {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+        pointer-events: none;
+      }
+
+      .ambient-particle {
+        position: absolute;
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: rgba(142, 221, 255, .94);
+        box-shadow: 0 0 10px rgba(142, 221, 255, .76), 0 0 22px rgba(82, 186, 255, .28);
+        animation: ambient-drift 8s ease-in-out infinite;
+      }
+
+      .ambient-particle:nth-child(1) {
+        left: 8%;
+        top: 12%;
+      }
+
+      .ambient-particle:nth-child(2) {
+        left: 24%;
+        top: 74%;
+        animation-delay: -2s;
+      }
+
+      .ambient-particle:nth-child(3) {
+        left: 76%;
+        top: 16%;
+        animation-delay: -4s;
+      }
+
+      .ambient-particle:nth-child(4) {
+        left: 88%;
+        top: 72%;
+        animation-delay: -6s;
+      }
+
+      .site-header {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        min-height: 84px;
+        padding: 16px clamp(18px, 4vw, 56px);
+        border-bottom: 1px solid rgba(255, 255, 255, .1);
+        background: linear-gradient(135deg, rgba(2, 8, 22, .9), rgba(9, 15, 39, .78), rgba(23, 12, 38, .72));
+        box-shadow: 0 18px 46px rgba(0, 0, 0, .2), inset 0 1px 0 rgba(255, 255, 255, .04);
+        backdrop-filter: blur(20px) saturate(150%);
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+      }
+
+      .logo-mark {
+        display: grid;
+        width: 44px;
+        aspect-ratio: 1;
+        place-items: center;
+        flex: none;
+        border-radius: 16px;
+        background: radial-gradient(circle at 32% 28%, rgba(77, 228, 255, .34), transparent 34%), radial-gradient(circle at 72% 72%, rgba(184, 107, 255, .22), transparent 38%), linear-gradient(145deg, rgba(5, 14, 35, .96), rgba(8, 17, 41, .72));
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 0 0 1px rgba(114, 198, 255, .08), 0 10px 26px rgba(6, 13, 31, .45), 0 0 32px rgba(155, 228, 255, .16);
+      }
+
+      .logo-mark svg {
+        width: 100%;
+        height: 100%;
+        filter: drop-shadow(0 0 6px rgba(72, 222, 255, .3)) drop-shadow(0 0 18px rgba(147, 95, 255, .15));
+      }
+
+      .brand-name {
+        display: block;
+        color: transparent;
+        font-size: .84rem;
+        font-weight: 900;
+        letter-spacing: .28em;
+        line-height: 1;
+        text-transform: uppercase;
+        white-space: nowrap;
+        background: var(--nav-text-gradient);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .header-pill {
+        display: inline-flex;
+        align-items: center;
+        min-height: 40px;
+        padding: 0 16px;
+        border: 1px solid rgba(248, 251, 255, .92);
+        border-radius: 8px;
+        background: var(--light-cta-bg);
+        color: #05091d;
+        font-size: .9rem;
+        font-weight: 850;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, .08), 0 12px 24px rgba(255, 199, 116, .12);
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, .92fr) minmax(340px, 1.08fr);
+        gap: clamp(28px, 5vw, 72px);
+        align-items: center;
+        width: min(1180px, calc(100% - 36px));
+        min-height: calc(100vh - 84px);
+        margin: 0 auto;
+        padding: clamp(34px, 6vw, 74px) 0;
+      }
+
+      .hero-copy {
+        display: grid;
+        gap: 22px;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        width: fit-content;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+        padding: 9px 16px;
+        border: 1px solid rgba(155, 228, 255, .36);
+        border-radius: 999px;
+        background: rgba(8, 16, 36, .42);
+        color: var(--cyan);
+        font-size: .76rem;
+        font-weight: 850;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), 0 0 16px rgba(155, 228, 255, .16);
+      }
+
+      h1 {
+        max-width: 660px;
+        margin: 0;
+        color: #fff;
+        font-size: clamp(2.7rem, 6vw, 5.8rem);
+        font-weight: 520;
+        letter-spacing: 0;
+        line-height: .92;
+      }
+
+      .title-muted {
+        display: block;
+        color: rgba(220, 231, 247, .64);
+      }
+
+      .hero-text {
+        max-width: 560px;
+        margin: 0;
+        color: rgba(220, 231, 247, .78);
+        font-size: clamp(1.05rem, 1.7vw, 1.26rem);
+        line-height: 1.65;
+      }
+
+      .trust-line {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 4px;
+      }
+
+      .trust-line span {
+        color: rgba(248, 251, 255, .74);
+        font-size: .84rem;
+        font-weight: 760;
+      }
+
+      .calculator-shell {
+        position: relative;
+        isolation: isolate;
+      }
+
+      .calculator-shell::before {
+        position: absolute;
+        z-index: -1;
+        inset: -70px -40px;
+        background:
+          radial-gradient(closest-side, rgba(155, 228, 255, .32), transparent 70%) 0 12% / 54% 62% no-repeat,
+          radial-gradient(closest-side, rgba(255, 199, 116, .22), transparent 72%) 100% 0 / 46% 50% no-repeat,
+          radial-gradient(closest-side, rgba(184, 107, 255, .3), transparent 72%) 28% 100% / 58% 56% no-repeat;
+        filter: blur(48px);
+        content: "";
+      }
+
+      .card {
+        overflow: hidden;
+        border: 1px solid rgba(155, 228, 255, .18);
+        border-radius: 28px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, .1), rgba(255, 255, 255, .055));
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1), 0 30px 90px rgba(0, 0, 0, .36);
+        backdrop-filter: blur(22px) saturate(150%);
+      }
+
+      .card-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        min-height: 58px;
+        padding: 0 22px;
+        border-bottom: 1px solid rgba(155, 228, 255, .13);
+        color: rgba(248, 251, 255, .68);
+        font-size: .72rem;
+        font-weight: 820;
+        letter-spacing: .11em;
+        text-transform: uppercase;
+      }
+
+      .dots {
+        display: inline-flex;
+        gap: 8px;
+      }
+
+      .dots span {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: rgba(155, 228, 255, .78);
+        box-shadow: 0 0 14px rgba(155, 228, 255, .34);
+      }
+
+      .dots span:nth-child(2) {
+        background: rgba(255, 199, 116, .72);
+      }
+
+      .dots span:nth-child(3) {
+        background: rgba(184, 107, 255, .72);
+      }
+
+      .card-body {
+        display: grid;
+        gap: 22px;
+        padding: clamp(22px, 3vw, 32px);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      label {
+        display: grid;
+        gap: 8px;
+        color: rgba(248, 251, 255, .9);
+        font-size: .9rem;
+        font-weight: 780;
+      }
+
+      input {
+        width: 100%;
+        min-height: 52px;
+        padding: 0 15px;
+        border: 1px solid rgba(155, 228, 255, .22);
+        border-radius: 12px;
+        outline: none;
+        background: rgba(3, 10, 26, .64);
+        color: #fff;
+        font-size: 1.04rem;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05);
+        transition: border-color .16s ease, box-shadow .16s ease, background .16s ease;
+      }
+
+      input:focus {
+        border-color: rgba(155, 228, 255, .72);
+        background: rgba(5, 16, 39, .78);
+        box-shadow: 0 0 0 4px rgba(155, 228, 255, .1);
+      }
+
+      .button-row {
+        display: flex;
+        gap: 12px;
+      }
+
+      button {
+        min-height: 52px;
+        border: 0;
+        border-radius: 12px;
+        padding: 0 18px;
+        cursor: pointer;
+        font-weight: 860;
+        transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+      }
+
+      #calcBtn {
+        flex: 1;
+        border: 1px solid rgba(248, 251, 255, .92);
+        background: var(--light-cta-bg);
+        color: #05091d;
+        box-shadow: 0 18px 34px rgba(255, 199, 116, .14);
+      }
+
+      #resetBtn {
+        border: 1px solid rgba(255, 255, 255, .14);
+        background: rgba(255, 255, 255, .08);
+        color: #fff;
+      }
+
+      .error {
+        display: none;
+        padding: 13px 14px;
+        border: 1px solid rgba(255, 141, 109, .36);
+        border-radius: 12px;
+        background: rgba(255, 141, 109, .12);
+        color: #ffd7c9;
+        font-weight: 720;
+      }
+
+      .results {
+        display: grid;
+        gap: 0;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, .1);
+        border-radius: 18px;
+        background: rgba(3, 10, 26, .4);
+      }
+
+      .row {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 14px 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, .08);
+        color: rgba(220, 231, 247, .78);
+        font-size: .96rem;
+      }
+
+      .row:last-child {
+        border-bottom: none;
+      }
+
+      .value {
+        color: #fff;
+        font-weight: 850;
+        text-align: right;
+      }
+
+      .highlight {
+        border: 1px solid rgba(155, 228, 255, .22);
+        border-radius: 18px;
+        padding: 20px;
+        background: radial-gradient(circle at 92% 8%, rgba(155, 228, 255, .1), transparent 34%), rgba(255, 255, 255, .065);
+      }
+
+      .highlight strong {
+        display: block;
+        margin-bottom: 10px;
+        color: var(--cyan);
+        font-size: .8rem;
+        font-weight: 850;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+      }
+
+      .phase {
+        color: rgba(248, 251, 255, .9);
+        font-size: 1rem;
+        line-height: 1.7;
+      }
+
+      .note {
+        color: rgba(220, 231, 247, .64);
+        font-size: .86rem;
+        line-height: 1.6;
+      }
+
+      @keyframes ambient-drift {
+        0%,
+        100% {
+          opacity: .38;
+          transform: translate3d(0, 0, 0) scale(.9);
+        }
+
+        50% {
+          opacity: .95;
+          transform: translate3d(12px, -16px, 0) scale(1.18);
+        }
+      }
+
+      @media (max-width: 900px) {
+        .hero {
+          grid-template-columns: 1fr;
+          min-height: auto;
+        }
+
+        .hero-copy {
+          text-align: center;
+          justify-items: center;
+        }
+
+        .hero-text {
+          margin: 0 auto;
+        }
+
+        .trust-line {
+          justify-content: center;
+        }
+      }
+
+      @media (max-width: 650px) {
+        .site-header {
+          min-height: 68px;
+          padding: 12px 16px;
+        }
+
+        .logo-mark {
+          width: 38px;
+          border-radius: 14px;
+        }
+
+        .brand-name {
+          font-size: .72rem;
+          letter-spacing: .2em;
+        }
+
+        .header-pill {
+          display: none;
+        }
+
+        .hero {
+          width: calc(100% - 28px);
+          padding: 28px 0 36px;
+        }
+
+        h1 {
+          font-size: clamp(2.2rem, 13vw, 3.35rem);
+        }
+
+        .card {
+          border-radius: 22px;
+        }
+
+        .card-body {
+          padding: 20px;
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        .button-row {
+          flex-direction: column;
+        }
+
+        .row {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .value {
+          text-align: left;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="ambient-particles" aria-hidden="true">
+      <span class="ambient-particle"></span>
+      <span class="ambient-particle"></span>
+      <span class="ambient-particle"></span>
+      <span class="ambient-particle"></span>
+    </div>
+    <main class="page">
+      <header class="site-header">
+        <div class="brand" aria-label="Digital Vision">
+          <span class="logo-mark" aria-hidden="true">
+            <svg viewBox="0 0 112 112" role="presentation" focusable="false">
+              <defs>
+                <linearGradient id="stroke-gradient" x1="18" y1="18" x2="96" y2="96" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#3fe5ff"></stop>
+                  <stop offset="56%" stop-color="#42a9ff"></stop>
+                  <stop offset="100%" stop-color="#b86bff"></stop>
+                </linearGradient>
+                <linearGradient id="pixel-gradient" x1="20" y1="20" x2="56" y2="72" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#46e6ff"></stop>
+                  <stop offset="100%" stop-color="#8d5cff"></stop>
+                </linearGradient>
+              </defs>
+              <path d="M56 16h16c19.9 0 36 16.1 36 36s-16.1 36-36 36H56" fill="none" stroke="url(#stroke-gradient)" stroke-linecap="round" stroke-linejoin="round" stroke-width="11"></path>
+              <path d="M46 40 62 73 86 40" fill="none" stroke="url(#stroke-gradient)" stroke-linecap="round" stroke-linejoin="round" stroke-width="11"></path>
+              <rect x="26" y="28" width="10" height="10" fill="url(#pixel-gradient)" rx="1.6"></rect>
+              <rect x="18" y="44" width="14" height="14" fill="url(#pixel-gradient)" rx="2"></rect>
+              <rect x="36" y="40" width="12" height="12" fill="url(#pixel-gradient)" rx="1.8"></rect>
+              <rect x="30" y="60" width="11" height="11" fill="url(#pixel-gradient)" rx="1.8"></rect>
+              <rect x="46" y="54" width="13" height="13" fill="url(#pixel-gradient)" rx="2"></rect>
+              <rect x="34" y="82" width="8" height="8" fill="url(#pixel-gradient)" rx="1.4"></rect>
+            </svg>
+          </span>
+          <span class="brand-name">Digital Vision</span>
+        </div>
+        <span class="header-pill">Webseiten-Kalkulator</span>
+      </header>
+
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Webdesign · Support · Vertrag</p>
+          <h1>Website kalkulieren <span class="title-muted">klar und schnell.</span></h1>
+          <p class="hero-text">Berechne Monatsrate, Support-Zeitraum und Gesamteinnahmen passend zu den Website-Paketen von Digital Vision.</p>
+          <div class="trust-line" aria-label="Leistungsbereiche">
+            <span>SEO-Struktur</span>
+            <span>Responsives Design</span>
+            <span>Pflege & Support</span>
+          </div>
+        </div>
+
+        <div class="calculator-shell">
+          <div class="card">
+            <div class="card-top">
+              <span class="dots" aria-hidden="true"><span></span><span></span><span></span></span>
+              <span>Projektwerte</span>
+            </div>
+            <div class="card-body">
+              <div class="grid">
+                <label for="price">Webseiten-Endpreis (€)
+                  <input id="price" type="number" min="0" step="50" value="3000">
+                </label>
+                <label for="contract">Vertragslaufzeit (Monate)
+                  <input id="contract" type="number" min="1" step="1" value="24">
+                </label>
+                <label for="payoff">Abzahlungsdauer Webseite (Monate)
+                  <input id="payoff" type="number" min="0" step="1" value="12">
+                </label>
+                <label for="support">Support pro Monat (€)
+                  <input id="support" type="number" min="0" step="10" value="100">
+                </label>
+              </div>
+
+              <div class="button-row">
+                <button id="calcBtn" type="button">Jetzt berechnen</button>
+                <button id="resetBtn" type="button">Zurücksetzen</button>
+              </div>
+
+              <div class="error" id="errorBox"></div>
+
+              <div class="results">
+                <div class="row"><span>Monatsrate Webseite</span><span class="value" id="websiteRate">–</span></div>
+                <div class="row"><span>Support-Monate im Vertrag</span><span class="value" id="supportMonths">–</span></div>
+                <div class="row"><span>Support gesamt</span><span class="value" id="supportTotal">–</span></div>
+                <div class="row"><span>Gesamteinnahmen</span><span class="value" id="total">–</span></div>
+                <div class="row"><span>Durchschnitt pro Monat</span><span class="value" id="average">–</span></div>
+              </div>
+
+              <div class="highlight">
+                <strong>Zahlungsplan</strong>
+                <div class="phase" id="phaseText">Nach der Berechnung erscheint hier der Zahlungsplan.</div>
+              </div>
+
+              <div class="note">Bei 0 Monaten Abzahlungsdauer wird die Webseite als einmalige Zahlung berechnet. Danach bzw. parallel läuft der Support über die Vertragslaufzeit.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      (function () {
+        function eur(value) {
+          return new Intl.NumberFormat("de-DE", {
+            style: "currency",
+            currency: "EUR"
+          }).format(value);
+        }
+
+        function num(id) {
+          return Number(document.getElementById(id).value);
+        }
+
+        function calc() {
+          const price = num("price");
+          const contract = num("contract");
+          const payoff = num("payoff");
+          const support = num("support");
+          const errorBox = document.getElementById("errorBox");
+
+          errorBox.style.display = "none";
+          errorBox.textContent = "";
+
+          if (
+            !Number.isFinite(price) ||
+            price < 0 ||
+            !Number.isFinite(contract) ||
+            contract <= 0 ||
+            !Number.isFinite(payoff) ||
+            payoff < 0 ||
+            !Number.isFinite(support) ||
+            support < 0
+          ) {
+            errorBox.textContent = "Bitte gültige Werte eingeben.";
+            errorBox.style.display = "block";
+            return;
+          }
+
+          if (payoff > contract) {
+            errorBox.textContent = "Die Abzahlungsdauer kann nicht länger als die Vertragslaufzeit sein.";
+            errorBox.style.display = "block";
+            return;
+          }
+
+          let websiteRate;
+          let supportMonths;
+          let supportTotal;
+          let total;
+          let average;
+          let plan;
+
+          if (payoff === 0) {
+            websiteRate = 0;
+            supportMonths = contract;
+            supportTotal = supportMonths * support;
+            total = price + supportTotal;
+            average = total / contract;
+            document.getElementById("websiteRate").textContent = "Einmalig " + eur(price);
+            plan = "Webseite: <b>" + eur(price) + "</b> einmalig.<br>Monat 1–" + contract + ": <b>" + eur(support) + "</b> pro Monat für Support & Betreuung.";
+          } else {
+            websiteRate = price / payoff;
+            supportMonths = contract - payoff;
+            supportTotal = supportMonths * support;
+            total = price + supportTotal;
+            average = total / contract;
+            document.getElementById("websiteRate").textContent = eur(websiteRate);
+            plan = "Monat 1–" + payoff + ": <b>" + eur(websiteRate) + "</b> pro Monat für die Webseite.";
+            plan += supportMonths > 0
+              ? "<br>Monat " + (payoff + 1) + "–" + contract + ": <b>" + eur(support) + "</b> pro Monat für Support & Betreuung."
+              : "<br>Der Support beginnt erst nach Ende der Vertragslaufzeit.";
+          }
+
+          document.getElementById("supportMonths").textContent = supportMonths + " Monate";
+          document.getElementById("supportTotal").textContent = eur(supportTotal);
+          document.getElementById("total").textContent = eur(total);
+          document.getElementById("average").textContent = eur(average);
+          document.getElementById("phaseText").innerHTML = plan;
+        }
+
+        function reset() {
+          document.getElementById("price").value = 3000;
+          document.getElementById("contract").value = 24;
+          document.getElementById("payoff").value = 12;
+          document.getElementById("support").value = 100;
+          ["websiteRate", "supportMonths", "supportTotal", "total", "average"].forEach(function (id) {
+            document.getElementById(id).textContent = "–";
+          });
+          document.getElementById("phaseText").textContent = "Nach der Berechnung erscheint hier der Zahlungsplan.";
+          document.getElementById("errorBox").style.display = "none";
+        }
+
+        document.getElementById("calcBtn").addEventListener("click", calc);
+        document.getElementById("resetBtn").addEventListener("click", reset);
+      })();
+    </script>
+  </body>
+</html>
