@@ -9,21 +9,31 @@ const defaultValues = {
   support: 100,
 };
 
+type ValueField = keyof typeof defaultValues;
+type InputValues = Record<ValueField, string>;
+
+const defaultInputValues: InputValues = {
+  price: String(defaultValues.price),
+  contract: String(defaultValues.contract),
+  payoff: String(defaultValues.payoff),
+  support: String(defaultValues.support),
+};
+
 type Results = {
   websiteRate: string;
+  websiteTotal: string;
   supportMonths: string;
   supportTotal: string;
   total: string;
-  average: string;
   phaseText: React.ReactNode;
 };
 
 const emptyResults: Results = {
   websiteRate: "–",
+  websiteTotal: "–",
   supportMonths: "–",
   supportTotal: "–",
   total: "–",
-  average: "–",
   phaseText: "Nach der Berechnung erscheint hier der Zahlungsplan.",
 };
 
@@ -34,20 +44,43 @@ function eur(value: number) {
   }).format(value);
 }
 
+function numericValue(field: ValueField, values: InputValues) {
+  const rawValue = values[field].trim();
+
+  return Number(rawValue === "" ? defaultInputValues[field] : rawValue);
+}
+
 export default function Home() {
-  const [values, setValues] = useState(defaultValues);
+  const [values, setValues] = useState<InputValues>(defaultInputValues);
   const [results, setResults] = useState<Results>(emptyResults);
   const [error, setError] = useState("");
 
-  function updateValue(field: keyof typeof defaultValues, value: string) {
+  function updateValue(field: ValueField, value: string) {
     setValues((current) => ({
       ...current,
-      [field]: Number(value),
+      [field]: value,
+    }));
+  }
+
+  function handleFocus(field: ValueField) {
+    setValues((current) => ({
+      ...current,
+      [field]: current[field] === "0" ? "" : current[field],
+    }));
+  }
+
+  function handleBlur(field: ValueField) {
+    setValues((current) => ({
+      ...current,
+      [field]: current[field].trim() === "" ? defaultInputValues[field] : current[field],
     }));
   }
 
   function calculate() {
-    const { price, contract, payoff, support } = values;
+    const price = numericValue("price", values);
+    const contract = numericValue("contract", values);
+    const payoff = numericValue("payoff", values);
+    const support = numericValue("support", values);
 
     setError("");
 
@@ -74,14 +107,13 @@ export default function Home() {
       const supportMonths = contract;
       const supportTotal = supportMonths * support;
       const total = price + supportTotal;
-      const average = total / contract;
 
       setResults({
         websiteRate: `Einmalig ${eur(price)}`,
+        websiteTotal: eur(price),
         supportMonths: `${supportMonths} Monate`,
         supportTotal: eur(supportTotal),
         total: eur(total),
-        average: eur(average),
         phaseText: (
           <>
             Webseite: <b>{eur(price)}</b> einmalig.
@@ -97,25 +129,25 @@ export default function Home() {
     const supportMonths = contract - payoff;
     const supportTotal = supportMonths * support;
     const total = price + supportTotal;
-    const average = total / contract;
+    const supportStartMonth = payoff + 1;
 
     setResults({
       websiteRate: eur(websiteRate),
+      websiteTotal: eur(price),
       supportMonths: `${supportMonths} Monate`,
       supportTotal: eur(supportTotal),
       total: eur(total),
-      average: eur(average),
       phaseText: (
         <>
           Monat 1–{payoff}: <b>{eur(websiteRate)}</b> pro Monat für die Webseite.
           <br />
           {supportMonths > 0 ? (
             <>
-              Monat {payoff + 1}–{contract}: <b>{eur(support)}</b> pro Monat für Support &
+              Monat {supportStartMonth}–{contract}: <b>{eur(support)}</b> pro Monat für Support &
               Betreuung.
             </>
           ) : (
-            "Der Support beginnt erst nach Ende der Vertragslaufzeit."
+            "Support & Betreuung sind während der kompletten Vertragslaufzeit inklusive."
           )}
         </>
       ),
@@ -123,7 +155,7 @@ export default function Home() {
   }
 
   function reset() {
-    setValues(defaultValues);
+    setValues(defaultInputValues);
     setResults(emptyResults);
     setError("");
   }
@@ -202,7 +234,7 @@ export default function Home() {
               <span className="title-muted">klar und schnell.</span>
             </h1>
             <p className="hero-text">
-              Berechne Monatsrate, Support-Zeitraum und Gesamteinnahmen passend zu den
+              Berechne Monatsrate, Support-Zeitraum und Gesamtkosten passend zu den
               Website-Paketen von Digital Vision.
             </p>
             <div className="trust-line" aria-label="Leistungsbereiche">
@@ -232,6 +264,8 @@ export default function Home() {
                       min="0"
                       step="50"
                       value={values.price}
+                      onFocus={() => handleFocus("price")}
+                      onBlur={() => handleBlur("price")}
                       onChange={(event) => updateValue("price", event.target.value)}
                     />
                   </label>
@@ -243,6 +277,8 @@ export default function Home() {
                       min="1"
                       step="1"
                       value={values.contract}
+                      onFocus={() => handleFocus("contract")}
+                      onBlur={() => handleBlur("contract")}
                       onChange={(event) => updateValue("contract", event.target.value)}
                     />
                   </label>
@@ -254,6 +290,8 @@ export default function Home() {
                       min="0"
                       step="1"
                       value={values.payoff}
+                      onFocus={() => handleFocus("payoff")}
+                      onBlur={() => handleBlur("payoff")}
                       onChange={(event) => updateValue("payoff", event.target.value)}
                     />
                   </label>
@@ -265,6 +303,8 @@ export default function Home() {
                       min="0"
                       step="10"
                       value={values.support}
+                      onFocus={() => handleFocus("support")}
+                      onBlur={() => handleBlur("support")}
                       onChange={(event) => updateValue("support", event.target.value)}
                     />
                   </label>
@@ -289,7 +329,11 @@ export default function Home() {
                     <span className="value">{results.websiteRate}</span>
                   </div>
                   <div className="row">
-                    <span>Support-Monate im Vertrag</span>
+                    <span>Website-Gesamtpreis</span>
+                    <span className="value">{results.websiteTotal}</span>
+                  </div>
+                  <div className="row">
+                    <span>Support-Monate</span>
                     <span className="value">{results.supportMonths}</span>
                   </div>
                   <div className="row">
@@ -297,12 +341,8 @@ export default function Home() {
                     <span className="value">{results.supportTotal}</span>
                   </div>
                   <div className="row">
-                    <span>Gesamteinnahmen</span>
+                    <span>Gesamtkosten</span>
                     <span className="value">{results.total}</span>
-                  </div>
-                  <div className="row">
-                    <span>Durchschnitt pro Monat</span>
-                    <span className="value">{results.average}</span>
                   </div>
                 </div>
 
@@ -313,7 +353,8 @@ export default function Home() {
 
                 <div className="note">
                   Bei 0 Monaten Abzahlungsdauer wird die Webseite als einmalige Zahlung
-                  berechnet. Danach bzw. parallel läuft der Support über die Vertragslaufzeit.
+                  berechnet. Während der Abzahlung sind Hosting, Pflege und Support inklusive;
+                  die kostenpflichtige Betreuung beginnt erst nach vollständiger Bezahlung.
                 </div>
               </div>
             </div>
