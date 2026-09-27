@@ -19,8 +19,11 @@ const defaultInputValues: InputValues = {
   support: String(defaultValues.support),
 };
 
+const financingMarkupPerYear = 0.3;
+
 type Results = {
   websiteRate: string;
+  monthlyCombined: string;
   websiteTotal: string;
   supportMonths: string;
   supportTotal: string;
@@ -30,6 +33,7 @@ type Results = {
 
 const emptyResults: Results = {
   websiteRate: "–",
+  monthlyCombined: "–",
   websiteTotal: "–",
   supportMonths: "–",
   supportTotal: "–",
@@ -110,6 +114,7 @@ export default function Home() {
 
       setResults({
         websiteRate: `Einmalig ${eur(price)}`,
+        monthlyCombined: eur(support),
         websiteTotal: eur(price),
         supportMonths: `${supportMonths} Monate`,
         supportTotal: eur(supportTotal),
@@ -125,15 +130,18 @@ export default function Home() {
       return;
     }
 
-    const websiteRate = price / payoff;
-    const supportMonths = contract - payoff;
+    const financingYears = payoff / 12;
+    const financingMarkup = price * financingMarkupPerYear * financingYears;
+    const financedWebsiteTotal = price + financingMarkup;
+    const websiteRate = financedWebsiteTotal / payoff;
+    const supportMonths = contract;
     const supportTotal = supportMonths * support;
-    const total = price + supportTotal;
-    const supportStartMonth = payoff + 1;
+    const total = financedWebsiteTotal + supportTotal;
 
     setResults({
       websiteRate: eur(websiteRate),
-      websiteTotal: eur(price),
+      monthlyCombined: eur(websiteRate + support),
+      websiteTotal: eur(financedWebsiteTotal),
       supportMonths: `${supportMonths} Monate`,
       supportTotal: eur(supportTotal),
       total: eur(total),
@@ -141,14 +149,9 @@ export default function Home() {
         <>
           Monat 1–{payoff}: <b>{eur(websiteRate)}</b> pro Monat für die Webseite.
           <br />
-          {supportMonths > 0 ? (
-            <>
-              Monat {supportStartMonth}–{contract}: <b>{eur(support)}</b> pro Monat für Support &
-              Betreuung.
-            </>
-          ) : (
-            "Support & Betreuung sind während der kompletten Vertragslaufzeit inklusive."
-          )}
+          Finanzierungsaufschlag: <b>{eur(financingMarkup)}</b> ({financingYears * 30}% für {payoff} Monate).
+          <br />
+          Monat 1–{contract}: <b>{eur(support)}</b> pro Monat für Support & Betreuung.
         </>
       ),
     });
@@ -329,6 +332,10 @@ export default function Home() {
                     <span className="value">{results.websiteRate}</span>
                   </div>
                   <div className="row">
+                    <span>Monatlich inkl. Support</span>
+                    <span className="value">{results.monthlyCombined}</span>
+                  </div>
+                  <div className="row">
                     <span>Website-Gesamtpreis</span>
                     <span className="value">{results.websiteTotal}</span>
                   </div>
@@ -353,8 +360,9 @@ export default function Home() {
 
                 <div className="note">
                   Bei 0 Monaten Abzahlungsdauer wird die Webseite als einmalige Zahlung
-                  berechnet. Während der Abzahlung sind Hosting, Pflege und Support inklusive;
-                  die kostenpflichtige Betreuung beginnt erst nach vollständiger Bezahlung.
+                  berechnet. Support & Betreuung laufen immer über die komplette Vertragslaufzeit,
+                  unabhängig von der Abzahlungsdauer der Webseite. Bei Finanzierung wird die
+                  Webseite mit 30% Aufschlag pro Jahr Abzahlungsdauer berechnet.
                 </div>
               </div>
             </div>
